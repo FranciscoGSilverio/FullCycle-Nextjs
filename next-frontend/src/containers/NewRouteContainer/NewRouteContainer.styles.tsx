@@ -16,3 +16,9 @@ export const StyledPlacesForm = styled.form`
   flex-direction: column;
   gap: 10px;
 `;
+
+export const MapContainer = styled.div`
+  flex: 1;
+  height: 100%;
+  width: 100%;
+`;

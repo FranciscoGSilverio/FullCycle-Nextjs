@@ -2,26 +2,42 @@ import { useMap } from "@/hooks/useMap";
 import { getDiretions } from "@/useCases/directions/getDirections";
 import { getPlaceId } from "@/useCases/places/getPlaceId";
 import { createRoute } from "@/useCases/routes/createRoute";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "react-toastify";
 
 export const useNewRoute = () => {
   const [origin, setOrigin] = useState<string>("");
   const [destination, setDestination] = useState<string>("");
 
-  const [routeStartAddress, setRouteStartAddress] = useState<string>("");
-  const [routeEndAddress, setRouteEndAddress] = useState<string>("");
-  const [routeDistance, setRouteDistance] = useState<string>("");
-  const [routeDuration, setRouteDuration] = useState<string>("");
   const [directionsGeneralData, setDirectionsGeneralData] = useState<any>({});
   const [routeLoading, setRouteLoading] = useState<boolean>(false);
   const mapContainerRef = useRef<HTMLDivElement>(null);
-  const map = useMap(mapContainerRef);
+  const map = useMap(
+    mapContainerRef as unknown as React.RefObject<HTMLDivElement>
+  );
+
+  const routeStartAddress = useMemo(
+    () => directionsGeneralData.routes?.[0]?.legs?.[0]?.start_address,
+    [directionsGeneralData]
+  );
+  const routeEndAddress = useMemo(
+    () => directionsGeneralData.routes?.[0]?.legs?.[0]?.end_address,
+    [directionsGeneralData]
+  );
+  const routeDistance = useMemo(
+    () => directionsGeneralData.routes?.[0]?.legs?.[0]?.distance?.text,
+    [directionsGeneralData]
+  );
+  const routeDuration = useMemo(
+    () => directionsGeneralData.routes?.[0]?.legs?.[0]?.duration?.text,
+    [directionsGeneralData]
+  );
 
   useEffect(() => {
     if (!map || !directionsGeneralData) return;
     if (!directionsGeneralData?.routes || !directionsGeneralData?.routes)
       return;
+
     map.removeAllRoutes();
     map.addRouteWithIcons({
       routeId: "1",
@@ -44,13 +60,8 @@ export const useNewRoute = () => {
       getPlaceId(destination),
     ]);
 
-    const { response, distance, duration, start_address, end_address } =
-      await getDiretions(originId, destinationId);
+    const response = await getDiretions(originId, destinationId);
     setDirectionsGeneralData(response);
-    setRouteStartAddress(start_address);
-    setRouteEndAddress(end_address);
-    setRouteDistance(distance);
-    setRouteDuration(duration);
 
     const routeName = `${origin} - ${destination}`;
 

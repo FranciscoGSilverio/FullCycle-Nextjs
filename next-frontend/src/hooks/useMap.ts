@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { Map } from "../utils/map";
 import { getCurrentPosition } from "@/utils/geolocation";
 
-export function useMap(containerRef: React.RefObject<HTMLDivElement>) {
+export function useMap(containerRef: React.RefObject<HTMLDivElement> | null) {
   const [map, setMap] = useState<Map>();
 
   useEffect(() => {
@@ -19,6 +19,7 @@ export function useMap(containerRef: React.RefObject<HTMLDivElement>) {
         getCurrentPosition({ enableHighAccuracy: true }),
       ]);
 
+      if (!containerRef?.current) return;
       const map = new Map(containerRef.current!, {
         mapId: "8e0a97af9386fef", //theme
         zoom: 15,
